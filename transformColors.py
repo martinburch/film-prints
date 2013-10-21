@@ -11,21 +11,22 @@ Changes colors from RGB to polar coordinates. Feed it JSON files. Output: CSV, o
 import json
 import urllib2
 import csv
+import numpy as np
 
 def dictListToFile(dictrows, filename, fieldnames, delimiter='\t',
           lineterminator='\n'):
-	out_f = open(filename, 'w')
+	out = open(filename, 'w')
 	
 	# Write out header
 	header = delimiter.join(fieldnames) + lineterminator
-	out_f.write(header)
+	out.write(header)
 	
 	# Write out dictionary
-	data = csv.DictWriter(out_f, fieldnames,
+	data = csv.DictWriter(out, fieldnames,
 	          delimiter=delimiter,
 	          lineterminator=lineterminator)
 	data.writerows(dictrows)
-	out_f.close()
+	out.close()
 
 movieList = ["Argo","Beasts_of_the_Southern_Wild","Django_Unchained","Les_Miserables","Life_of_Pi","Lincoln","Silver_Linings_Playbook","Zero_Dark_Thirty"]
 
@@ -38,6 +39,10 @@ for movie in movieList:
 		rgb = item['rgb']
 		# split string into list on commas and cast to ints via list comprehension
 		r,g,b = [ float(x) for x in rgb.split(',') ]
+		
+		r = r / 255
+		g = g / 255
+		b = b / 255
 		
 		maxRGB = 0.0
 		minRGB = 0.0
@@ -64,6 +69,8 @@ for movie in movieList:
 			
 		h = 60*h
 		
+		theta = h * (np.pi / 180)
+		
 		# write data back to object
 		jsonData[idx]['r'] = r
 		jsonData[idx]['g'] = g
@@ -72,5 +79,6 @@ for movie in movieList:
 		jsonData[idx]['minRGB'] = minRGB
 		jsonData[idx]['c'] = c		
 		jsonData[idx]['h'] = h
+		jsonData[idx]['theta'] = theta
 	
-	dictListToFile(jsonData, movie+'.csv', ["i","rgb","r","g","b","maxRGB","minRGB","c","h"])
+	dictListToFile(jsonData, movie+'.csv', ["i","rgb","r","g","b","maxRGB","minRGB","c","h","theta"])
